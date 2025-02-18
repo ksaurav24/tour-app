@@ -1,0 +1,25 @@
+{
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "sourceType": "commonjs"
+    },
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "warn",
+      "indent": ["error", 2],
+      "no-multi-spaces": "error",
+      "no-trailing-spaces": "error",
+      "eol-last": ["error", "always"],
+      "comma-dangle": ["error", "always-multiline"],
+      "arrow-spacing": "error",
+      "no-var": "error",
+      "prefer-const": "error",
+      "object-curly-spacing": ["error", "always"]
+    }
+  }
+  

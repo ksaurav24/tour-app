@@ -1,0 +1,19 @@
+{
+  "name": "tour-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "echo \"Installing dependencies for client\" && cd client && npm install && echo \"Installing dependencies for server\" && cd ../server && npm install",
+    "start": "npm run dev",
+    "dev": "echo \"Starting the tour-app\" && concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && nodemon server.js",
+    "client": "cd client && npm run dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    
+  }
+}

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+.custom-toast {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  padding: 16px !important;
+  font-family: var(--font-geist-sans) !important;
+}
+
+.custom-toast-body {
+  font-size: 14px !important;
+  color: #333 !important;
+}
+
+.custom-toast-progress {
+  background: linear-gradient(to right, #4f46e5, #818cf8) !important;
+  height: 4px !important;
+}
+
+.Toastify__close-button {
+  color: #666 !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+.Toastify__toast-icon {
+  margin-right: 12px !important;
+}
+
