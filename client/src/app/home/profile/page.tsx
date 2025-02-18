@@ -75,6 +75,7 @@ const InterestInput: React.FC<InterestInputProps> = ({ interests, setInterests }
     if (lastChar === ',') {
       addInterest();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
 
   return (
