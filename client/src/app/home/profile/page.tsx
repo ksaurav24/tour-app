@@ -6,6 +6,7 @@ import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaEdit, FaSave, FaTimes
 import Image from 'next/image';
 import { api } from '@/config/ApiConfig';
 import { useRouter } from 'next/navigation';
+import Loader from '@/app/components/loader';
 
 interface UserProfile {
   firstName: string;
@@ -130,12 +131,12 @@ const Profile: React.FC = () => {
     setIsLoading(true);
     api.get<{ data: UserProfile }>('/user/profile', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => {
-        setUserProfile(res.data.data);
+        setUserProfile(res.data?.data);
         const initialEditedData = {
-          bio: res.data.data.bio,
-          travelStyle: res.data.data.travelStyle,
-          interests: res.data.data.interests,
-          socialMedia: res.data.data.socialMedia,
+          bio: res.data?.data?.bio,
+          travelStyle: res.data?.data?.travelStyle,
+          interests: res.data?.data?.interests,
+          socialMedia: res.data?.data?.socialMedia,
         };
         setEditedData(initialEditedData);
         setOriginalData(initialEditedData);
@@ -203,14 +204,7 @@ const Profile: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <motion.div
-          className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-[#319CB5]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.75, ease: "easeInOut", repeat: Infinity }}
-        />
-      </div>
+      <Loader/>
     );
   }
 
