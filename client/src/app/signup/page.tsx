@@ -14,9 +14,11 @@ import { api } from "@/config/ApiConfig";
 import { useDebounce } from "use-debounce";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import LoaderSimple from "../components/loaderSimple";
 
 export default function Signup() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -55,6 +57,7 @@ export default function Signup() {
     setHasCheckedUsername(false);
     try {
       const response = await api.post("/auth/checkUsername", { username });
+      console.log(response?.data?.data?.isAvailable)
       setUsernameAvailable(response?.data?.data?.isAvailable);
     } catch (error) {
       console.error("Error checking username:", error);
@@ -74,6 +77,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true)
     if (passwordsMatch && usernameAvailable) {
       try {
         const response = await api.post("/auth/register", formData);
@@ -84,6 +88,8 @@ export default function Signup() {
       } catch (error: any) {
         console.error("Error signing up:", error);
         toast.error(error?.response?.data?.message);
+      } finally{
+        setIsLoading(false)
       }
     }
   };
@@ -376,7 +382,8 @@ export default function Signup() {
               type="submit"
               className="w-full md:w-1/2 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] hover:bg-[#03181F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] transition duration-300 ease-in-out"
             >
-              Create Account
+              {isLoading ? <LoaderSimple/> : "Create account"
+              }
             </button>
           </motion.div>
         </form>

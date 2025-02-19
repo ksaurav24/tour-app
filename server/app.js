@@ -6,10 +6,10 @@ const cors = require('cors')
 const ApiResponse = require('./utils/ApiResponse');
 dotenv.config()
 
-
+// allow all
 app.use(cors(
     {
-        origin: "http://localhost:3000",
+        origin: ["http://localhost:3000", "http://192.168.32.112:3000"],
         credentials: true
     }
 ))

@@ -37,8 +37,16 @@ export default function Layout({ children }: LayoutProps) {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
     router.push('/login');
   };
+
+  useEffect(()=>{
+    const token = localStorage.getItem('token')
+    if(!token){
+      router.push('/login')
+    }
+  },[])
 
   return (
     <div className="flex h-screen bg-white">

@@ -45,39 +45,42 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const registerUser = asyncHandler(async (req, res) => {
     try {
-        const { email, password, firstName, lastName, dateOfBirth, userName } = req.body;
-        logger.info('Attempting to register new user', { email, userName });
+        const { email, password, firstName, lastName, dateOfBirth, username } = req.body;
+        logger.info('Attempting to register new user', { email, username });
 
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne(
+            { $or: [{ email }, { username }] }
+        );
         if (userExists) {
             logger.warn('Registration attempt with existing email', { email });
-            return res.status(400).send(new ApiResponse(400, null, "User already exists"));
+            return res.status(400).send(new ApiResponse(400, null, "User already exists with this email or username"));
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const token = uuidv4();
-        const verificationTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
-
+        // 1 hour
+        
         const user = await User.create({
             email,
             passwordHash,
             firstName,
             lastName,
             dateOfBirth,
-            userName,
-            verificationToken: token,
-            verificationTokenExpiry
+            username,
         });
-
-        const verifyUrl = `${process.env.CLIENT_URI}/verify/?token=${token}`;
-        await sendMail({
-            to: email,
-            emailType: "VERIFY",
-            url: verifyUrl
-        });
+        
+        const token = jwt.sign({ id:user._id }, process.env.JWT_SECRET);
+        // const verifyUrl = `${process.env.CLIENT_URI}/verify/?token=${token}`;
+        // await sendMail({
+        //     to: email,
+        //     emailType: "VERIFY",
+        //     url: verifyUrl
+        // });
 
         logger.info('User registered successfully', { userId: user._id, email });
-        res.status(201).send(new ApiResponse(201, user, "User created successfully, please verify your email"));
+        res.status(201).send(new ApiResponse(201, {
+            userId: user._id,
+            token
+        }, "User created successfully, please verify your email"));
     } catch (error) {
         logger.error('Error in user registration', { error: error.message });
         res.status(500).send(new ApiResponse(500, null, "Internal server error"));
@@ -104,17 +107,21 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const checkUsername = asyncHandler(async (req, res) => {
     try {
-        const { userName } = req.body;
-        logger.info('Checking username availability', { userName });
+        const { username } = req.body;
+        logger.info('Checking username availability', { username });
 
-        const userNameExists = await User.findOne({ userName });
+        const userNameExists = await User.findOne({ username });
         if (userNameExists) {
-            logger.info('Username already exists', { userName });
-            return res.status(400).send(new ApiResponse(400, null, "Username already exists"));
+            logger.info('Username already exists', { username });
+            return res.status(200).send(new ApiResponse(200, {
+                isAvailable:false
+            }, "Username already exists"));
         }
 
-        logger.info('Username is available', { userName });
-        res.status(200).send(new ApiResponse(200, null, "Username is available"));
+        logger.info('Username is available', { username });
+        res.status(200).send(new ApiResponse(200, {
+            isAvailable:true
+        }, "Username is available"));
     } catch (error) {
         logger.error('Error checking username', { userName: req.body.userName, error: error.message });
         res.status(500).send(new ApiResponse(500, null, "Internal server error"));

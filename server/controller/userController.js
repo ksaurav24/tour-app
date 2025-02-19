@@ -55,7 +55,8 @@ const getUserProfile = asyncHandler(async (req, res) => {
     logger.info('User profile retrieved successfully', { userId: req.user._id });
     res.status(200).json(new ApiResponse(200, data[0], "User profile retrieved successfully"));
   } catch (error) {
-    logger.error('Error fetching user profile', { userId: req.user._id, error: error.message });
+    console.log(error)
+    logger.error('Error fetching user profile', { userId: req?.user?._id, error: error?.message });
     res.status(500).send(new ApiResponse(500, null, "Internal server error"));
   }
 });

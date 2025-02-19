@@ -6,24 +6,30 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import { api } from "@/config/ApiConfig";
 import { toast } from "react-toastify";
+import LoaderSimple from "../components/loaderSimple";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true)
     api
       .post("/auth/login", { email, password })
       .then((res) => {
         localStorage.setItem("token", res?.data?.data?.token);
         localStorage.setItem("user", JSON.stringify(res?.data?.data?.user));
-        window.location.href = "/home/trips";
+        router.push('/home')
       })
       .catch((err) => {
         console.log(err);
         toast.error(err?.response?.data?.message || "An error occurred");
+      }).finally(()=>{   setIsLoading(false)
+        
       });
   };
 
@@ -122,9 +128,10 @@ export default function Login() {
           >
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] hover:bg-[#03181F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] transition duration-300 ease-in-out"
             >
-              Sign in
+              {isLoading? <LoaderSimple/>:"Sign In"}
             </button>
           </motion.div>
         </form>
