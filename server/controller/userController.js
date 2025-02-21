@@ -24,14 +24,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
           as: "reviews"
         }
       },
-      {
-        $lookup:{
-          from: "trips",
-          localField: "_id",
-          foreignField: "participants",
-          as: "upcomingTrips"
-        }
-      },
+       
       {
         $lookup:{
           from: "trips",
@@ -101,14 +94,7 @@ const getUserPublicProfile = asyncHandler(async (req, res) => {
           as: "reviews"
         }
       },
-      {
-        $lookup:{
-          from: "trips",
-          localField: "_id",
-          foreignField: "creatorId",
-          as: "createdTrips"
-        }
-      },
+
       {
         $project: {
           username: 1,

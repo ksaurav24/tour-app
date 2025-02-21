@@ -2,29 +2,14 @@
 
 import { useState, useEffect, SetStateAction } from 'react';
 import { motion } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTwitter, FaLinkedin, FaEdit, FaSave, FaTimes, FaRoute } from 'react-icons/fa'; // Import FaRoute for the trip icon
 import Image from 'next/image';
-import { api } from '@/config/ApiConfig';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // Import the Link component
 import Loader from '@/components/loader';
-
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  username: string;
-  bio: string;
-  travelStyle: string;
-  interests: string[];
-  socialMedia: {
-    facebook: string;
-    instagram: string;
-    twitter: string;
-    linkedIn: string;
-  };
-  upcomingTrips: Array<{ name: string; startDate: string }>;
-  pastTrips: Array<{ name: string; endDate: string }>;
-  reviews: Array<{ tripName: string; rating: number; comment: string }>;
-}
+import { UserProfile } from '@/types/ProfileTypes';
+import useUserStore from '@/stores/userStore'; // Import the user store
+import { api } from '@/config/ApiConfig';
 
 interface EditedData {
   bio: string;
@@ -46,7 +31,7 @@ interface InterestInputProps {
 const InterestInput: React.FC<InterestInputProps> = ({ interests, setInterests }) => {
   const [inputValue, setInputValue] = useState('');
 
-  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+  const handleInputChange = (e: { target: { value: string }; }) => {
     setInputValue(e.target.value);
   };
 
@@ -113,12 +98,13 @@ const InterestInput: React.FC<InterestInputProps> = ({ interests, setInterests }
 
 const Profile: React.FC = () => {
   const router = useRouter();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user, setUser, fetchProfile } = useUserStore(); // Access user state and setUser function from the store
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedData, setEditedData] = useState<EditedData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showFullBio, setShowFullBio] = useState(false);
   const [originalData, setOriginalData] = useState<EditedData | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);  // NEW STATE
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -126,28 +112,46 @@ const Profile: React.FC = () => {
       router.push('/login');
       return;
     }
-
-    setIsLoading(true);
-    api.get<{ data: UserProfile }>('/user/profile', { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        console.log(res.data.data)
-        setUserProfile(res.data?.data);
-        const initialEditedData = {
-          bio: res.data?.data?.bio,
-          travelStyle: res.data?.data?.travelStyle,
-          interests: res.data?.data?.interests,
-          socialMedia: res.data?.data?.socialMedia,
-        };
-        setEditedData(initialEditedData);
-        setOriginalData(initialEditedData);
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(() => {
+    if (user) {
+      setIsLoading(false);
+      setHasFetched(true);
+      return;
+    }
+    const loadProfile = async () => {
+      setIsLoading(true);
+      try {
+        await fetchProfile(); // Fetch profile using the store function
+        setHasFetched(true); // Set to true after fetching
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      } finally {
         setIsLoading(false);
-      });
-  }, [router]);
+      }
+    };
+
+    if (!hasFetched) {
+      loadProfile();
+    }
+
+  }, [router, fetchProfile, hasFetched]);
+
+  useEffect(() => {
+    if (user && hasFetched) {
+      const initialEditedData = {
+        bio: user.bio || '',
+        travelStyle: user.travelStyle || '',
+        interests: user.interests || [],
+        socialMedia: user.socialMedia || {
+          facebook: '',
+          instagram: '',
+          twitter: '',
+          linkedIn: ''
+        },
+      };
+      setEditedData(initialEditedData);
+      setOriginalData(initialEditedData);
+    }
+  }, [user, hasFetched]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -159,12 +163,14 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = () => {
-    const token = localStorage.getItem('token');
+    // const token = localStorage.getItem('token'); // No need to get token again, you can access data from the store directly.
     if (editedData) {
       setIsLoading(true);
-      api.put<{ data: UserProfile }>('/user/profile', editedData, { headers: { Authorization: `Bearer ${token}` } })
+      // No need to get token again, you can access data from the store directly.
+      api.put<{ data: UserProfile }>('/user/profile', editedData, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
         .then(res => {
-          setUserProfile(res?.data?.data);
+          const updatedProfile = res?.data?.data;
+          setUser(updatedProfile); // Update user store with updated data
           setOriginalData({ ...editedData });
           setIsEditing(false);
         })
@@ -208,13 +214,13 @@ const Profile: React.FC = () => {
     );
   }
 
-  if (!userProfile) {
+  if (!user) {
     return <div className="text-center text-2xl text-[#03181F] dark:text-gray-200">No profile data available.</div>;
   }
 
-  const bioDisplay = userProfile?.bio?.length > 150 && !showFullBio
-    ? userProfile.bio.substring(0, 150) + '...'
-    : userProfile.bio;
+  const bioDisplay = user?.bio?.length > 150 && !showFullBio
+    ? user.bio.substring(0, 150) + '...'
+    : user.bio;
 
   return (
     <motion.div
@@ -274,14 +280,14 @@ const Profile: React.FC = () => {
           >
             <div className="bg-[#CCF5FE] dark:bg-gray-800 p-6 rounded-2xl shadow-md border-2 border-[#319CB5] dark:border-gray-700">
               <Image
-                src={`https://api.dicebear.com/6.x/initials/svg?seed=${userProfile?.firstName} ${userProfile?.lastName}&backgroundColor=white`}
+                src={`https://api.dicebear.com/6.x/initials/svg?seed=${user?.firstName} ${user?.lastName}&backgroundColor=white`}
                 alt="Profile"
                 width={200}
                 height={200}
                 className="w-full max-w-[200px] mx-auto rounded-full mb-4 border-4 border-[#319CB5] dark:border-gray-600"
               />
-              <h2 className="text-2xl font-semibold text-center text-[#03181F] dark:text-gray-200">{`${userProfile?.firstName} ${userProfile?.lastName}`}</h2>
-              <p className="text-[#319CB5] dark:text-blue-400 text-center font-medium">@{userProfile?.username}</p>
+              <h2 className="text-2xl font-semibold text-center text-[#03181F] dark:text-gray-200">{`${user?.firstName} ${user?.lastName}`}</h2>
+              <p className="text-[#319CB5] dark:text-blue-400 text-center font-medium">@{user?.username}</p>
             </div>
           </motion.div>
 
@@ -301,7 +307,7 @@ const Profile: React.FC = () => {
               ) : (
                 <div>
                   <p className="text-[#03181F] dark:text-gray-200">{bioDisplay}</p>
-                  {userProfile?.bio?.length > 150 && (
+                  {user?.bio?.length > 150 && (
                     <button onClick={toggleBio} className="text-[#319CB5] dark:text-blue-400 hover:text-[#03181F] dark:hover:text-gray-300 focus:outline-none">
                       {showFullBio ? 'Show Less' : 'Show More'}
                     </button>
@@ -322,7 +328,7 @@ const Profile: React.FC = () => {
                   rows={4}
                 />
               ) : (
-                <p className="text-[#03181F] dark:text-gray-200">{userProfile.travelStyle}</p>
+                <p className="text-[#03181F] dark:text-gray-200">{user?.travelStyle}</p>
               )}
             </motion.div>
 
@@ -333,12 +339,12 @@ const Profile: React.FC = () => {
                 <InterestInput
                   interests={editedData?.interests || []}
                   setInterests={(newInterests) =>
-                    setEditedData((prev) => prev ? ({ ...prev, interests: typeof newInterests === 'function' ? newInterests(prev.interests) : newInterests }) : null)
+                    setEditedData((prev) => prev ? ({ ...prev, interests: Array.isArray(newInterests) ? [...newInterests] : [] }) : null)
                   }
                 />
               ) : (
                 <p className="text-[#03181F] dark:text-gray-200">
-                  {userProfile?.interests?.length > 0 ? userProfile.interests.join(', ') : 'No interests added yet'}
+                  {user?.interests?.length > 0 ? user.interests.join(', ') : 'No interests added yet'}
                 </p>
               )}
             </motion.div>
@@ -347,8 +353,8 @@ const Profile: React.FC = () => {
             <motion.div className="bg-[#CCF5FE] dark:bg-gray-800 p-6 rounded-2xl shadow-md border-2 border-[#319CB5] dark:border-gray-700">
               <h3 className="text-xl font-semibold mb-4 text-[#03181F] dark:text-gray-200">Social Media</h3>
               <div className="flex flex-wrap justify-center sm:justify-start space-x-4 mb-4">
-                {(userProfile.socialMedia) &&
-                  Object.entries(userProfile.socialMedia).map(([platform, link]) => (
+                {(user?.socialMedia) &&
+                  Object.entries(user.socialMedia).map(([platform, link]) => (
                     <motion.a
                       key={platform}
                       href={link}
@@ -373,7 +379,7 @@ const Profile: React.FC = () => {
                       <input
                         type="text"
                         name={platform}
-                        value={link}
+                        value={link || ''} // Ensure value is a string
                         onChange={(e) => {
                           handleSocialMediaChange(platform, e.target.value);
                         }}
@@ -388,40 +394,21 @@ const Profile: React.FC = () => {
             {/* My Trips Section */}
             <motion.div className="bg-[#CCF5FE] dark:bg-gray-800 p-6 rounded-2xl shadow-md border-2 border-[#319CB5] dark:border-gray-700">
               <h3 className="text-xl font-semibold mb-4 text-[#03181F] dark:text-gray-200">My Trips</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-lg font-medium mb-2 text-[#03181F] dark:text-gray-200">Upcoming Trips</h4>
-                  {userProfile?.upcomingTrips?.length > 0 ? (
-                    <ul className="list-disc list-inside text-[#03181F] dark:text-gray-200">
-                      {userProfile.upcomingTrips.map((trip, index) => (
-                        <li key={index}>{trip.name} - {new Date(trip.startDate).toLocaleDateString()}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500 dark:text-gray-400 italic">No upcoming trips</p>
-                  )}
-                </div>
-                <div>
-                  <h4 className="text-lg font-medium mb-2 text-[#03181F] dark:text-gray-200">Past Trips</h4>
-                  {userProfile?.pastTrips?.length > 0 ? (
-                    <ul className="list-disc list-inside text-[#03181F] dark:text-gray-200">
-                      {userProfile.pastTrips.map((trip, index) => (
-                        <li key={index}>{trip.name} - {new Date(trip.endDate).toLocaleDateString()}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500 dark:text-gray-400 italic">No past trips</p>
-                  )}
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="text-[#03181F] dark:text-gray-200">Explore your planned and past adventures.</p>
+                <Link href="/home/profile/my-trips" className="flex items-center text-[#319CB5] dark:text-blue-400 hover:text-[#03181F] dark:hover:text-gray-300 transition-colors duration-300">
+                  <FaRoute className="mr-2" />
+                  View Trips
+                </Link>
               </div>
             </motion.div>
 
             {/* My Reviews Section */}
             <motion.div className="bg-[#CCF5FE] dark:bg-gray-800 p-6 rounded-2xl shadow-md border-2 border-[#319CB5] dark:border-gray-700">
               <h3 className="text-xl font-semibold mb-4 text-[#03181F] dark:text-gray-200">My Reviews</h3>
-              {userProfile?.reviews?.length > 0 ? (
+              {user?.reviews?.length > 0 ? (
                 <div className="space-y-4">
-                  {userProfile.reviews.map((review, index) => (
+                  {user.reviews.map((review, index) => (
                     <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-4">
                       <h4 className="text-lg font-medium text-[#03181F] dark:text-gray-200">{review.tripName}</h4>
                       <div className="flex items-center mb-2">
