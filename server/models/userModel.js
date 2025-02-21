@@ -37,10 +37,10 @@ const userSchema = new Schema(
         joinRequests:[{ type: Schema.Types.ObjectId, ref: 'Trip' }],
         notifications:[{ type: Schema.Types.ObjectId, ref: 'Notification' }],
         socialMedia: {
-            facebook: { type: String },
-            twitter: { type: String },
-            instagram: { type: String },
-            linkedIn: { type: String },
+            facebook: { type: String,default:"" },
+            twitter: { type: String ,default:""},
+            instagram: { type: String,default:"" },
+            linkedIn: { type: String ,default:""},
         },
         
     },

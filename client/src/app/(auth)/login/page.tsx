@@ -6,7 +6,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 import { api } from "@/config/ApiConfig";
 import { toast } from "react-toastify";
-import LoaderSimple from "../components/loaderSimple";
+import LoaderSimple from "@/components/loaderSimple";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -34,18 +34,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#CCF5FE] to-[#319CB5] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#CCF5FE] to-[#319CB5] dark:from-gray-900 dark:to-black p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md"
+        className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md"
       >
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-4xl font-bold text-center text-[#03181F] mb-8"
+          className="text-4xl font-bold text-center text-[#03181F] dark:text-gray-100 mb-8"
         >
           Welcome Back
         </motion.h2>
@@ -57,7 +57,7 @@ export default function Login() {
           >
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-[#040D0F] mb-1"
+              className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
             >
               Email
             </label>
@@ -66,8 +66,8 @@ export default function Login() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full px-4 py-3 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+              className="block w-full px-4 py-3 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-100 text-sm
+                focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
               placeholder="you@example.com"
               required
             />
@@ -80,7 +80,7 @@ export default function Login() {
           >
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-[#040D0F] mb-1"
+              className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
             >
               Password
             </label>
@@ -89,15 +89,15 @@ export default function Login() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full px-4 py-3 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+              className="block w-full px-4 py-3 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-100 text-sm
+                focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
               placeholder="••••••••"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-9 text-[#319CB5] hover:text-[#03181F] focus:outline-none transition duration-300 ease-in-out"
+              className="absolute right-3 top-9 text-[#319CB5] dark:text-gray-400 hover:text-[#03181F] dark:hover:text-gray-200 focus:outline-none transition duration-300 ease-in-out"
             >
               {showPassword ? (
                 <FaEyeSlash className="h-5 w-5" />
@@ -115,7 +115,7 @@ export default function Login() {
             <div className="text-sm">
               <a
                 href="#"
-                className="font-medium text-[#319CB5] hover:text-[#03181F] transition duration-300 ease-in-out"
+                className="font-medium text-[#319CB5] dark:text-gray-400 hover:text-[#03181F] dark:hover:text-gray-200 transition duration-300 ease-in-out"
               >
                 Forgot password?
               </a>
@@ -129,7 +129,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] hover:bg-[#03181F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] transition duration-300 ease-in-out"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] dark:bg-gray-600 hover:bg-[#03181F] dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 transition duration-300 ease-in-out"
             >
               {isLoading? <LoaderSimple/>:"Sign In"}
             </button>
@@ -141,11 +141,11 @@ export default function Login() {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="mt-6 text-center"
         >
-          <p className="text-sm text-[#040D0F]">
+          <p className="text-sm text-[#040D0F] dark:text-gray-300">
             Don&apos;t have an account?{" "}
             <Link
               href={"../signup"}
-              className="font-medium text-[#319CB5] hover:text-[#03181F] transition duration-300 ease-in-out"
+              className="font-medium text-[#319CB5] dark:text-gray-400 hover:text-[#03181F] dark:hover:text-gray-200 transition duration-300 ease-in-out"
             >
               Register here
             </Link>

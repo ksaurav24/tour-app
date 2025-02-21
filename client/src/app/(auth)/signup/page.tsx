@@ -14,11 +14,11 @@ import { api } from "@/config/ApiConfig";
 import { useDebounce } from "use-debounce";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import LoaderSimple from "../components/loaderSimple";
+import LoaderSimple from "@/components/loaderSimple";
 
 export default function Signup() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,9 +31,8 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
 
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
-    null
-  );
+  const [usernameAvailable, setUsernameAvailable] =
+    useState<boolean | null>(null);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [hasCheckedUsername, setHasCheckedUsername] = useState(false);
 
@@ -57,7 +56,7 @@ export default function Signup() {
     setHasCheckedUsername(false);
     try {
       const response = await api.post("/auth/checkUsername", { username });
-      console.log(response?.data?.data?.isAvailable)
+      console.log(response?.data?.data?.isAvailable);
       setUsernameAvailable(response?.data?.data?.isAvailable);
     } catch (error) {
       console.error("Error checking username:", error);
@@ -77,7 +76,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true)
+    setIsLoading(true);
     if (passwordsMatch && usernameAvailable) {
       try {
         const response = await api.post("/auth/register", formData);
@@ -88,25 +87,25 @@ export default function Signup() {
       } catch (error: any) {
         console.error("Error signing up:", error);
         toast.error(error?.response?.data?.message);
-      } finally{
-        setIsLoading(false)
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#CCF5FE] to-[#319CB5] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#CCF5FE] to-[#319CB5] dark:from-gray-900 dark:to-gray-800 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-xl"
+        className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-xl"
       >
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-4xl font-bold text-center text-[#03181F] mb-8"
+          className="text-4xl font-bold text-center text-[#03181F] dark:text-white mb-8"
         >
           Create Your Account
         </motion.h2>
@@ -122,20 +121,20 @@ export default function Signup() {
                 <div className="flex-1">
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-medium text-[#040D0F] mb-1"
+                    className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                   >
                     First Name
                   </label>
                   <div className="relative">
-                    <FaUser className="absolute left-3 top-3 text-[#319CB5]" />
+                    <FaUser className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                     <input
                       type="text"
                       id="firstName"
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                        focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+                      className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
                       placeholder="John"
                       required
                     />
@@ -144,20 +143,20 @@ export default function Signup() {
                 <div className="flex-1">
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-medium text-[#040D0F] mb-1"
+                    className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                   >
                     Last Name
                   </label>
                   <div className="relative">
-                    <FaUser className="absolute left-3 top-3 text-[#319CB5]" />
+                    <FaUser className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                     <input
                       type="text"
                       id="lastName"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                        focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+                      className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
                       placeholder="Doe"
                     />
                   </div>
@@ -166,21 +165,20 @@ export default function Signup() {
               <div>
                 <label
                   htmlFor="username"
-                  className="block text-sm font-medium text-[#040D0F] mb-1"
+                  className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                 >
                   Username
                 </label>
                 <div className="relative">
-                  <FaUser className="absolute left-3 top-3 text-[#319CB5]" />
+                  <FaUser className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                   <input
                     type="text"
                     id="username"
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-12 py-2 bg-[#CCF5FE] border rounded-lg text-[#03181F] text-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out
-                      ${
+                    className={`block w-full pl-10 pr-12 py-2 bg-[#CCF5FE] dark:bg-gray-700 border rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out... ${
                         hasCheckedUsername && usernameAvailable === false
                           ? "border-red-500"
                           : ""
@@ -188,7 +186,7 @@ export default function Signup() {
                       ${
                         hasCheckedUsername && usernameAvailable === true
                           ? "border-green-500"
-                          : "border-[#319CB5]"
+                          : "border-[#319CB5] dark:border-gray-600"
                       }`}
                     placeholder="johndoe123"
                     required
@@ -196,7 +194,7 @@ export default function Signup() {
                   <div className="absolute right-3 top-2">
                     {isCheckingUsername && (
                       <svg
-                        className="animate-spin h-5 w-5 text-[#319CB5]"
+                        className="animate-spin h-5 w-5 text-[#319CB5] dark:text-gray-500"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -272,20 +270,20 @@ export default function Signup() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-[#040D0F] mb-1"
+                  className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                 >
                   Email
                 </label>
                 <div className="relative">
-                  <FaEnvelope className="absolute left-3 top-3 text-[#319CB5]" />
+                  <FaEnvelope className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                   <input
                     type="email"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+                    className="block w-full pl-10 pr-4 py-2 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
                     placeholder="you@example.com"
                     required
                   />
@@ -297,31 +295,30 @@ export default function Signup() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
               className="space-y-4"
-            >
-              <div>
+            >... <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-[#040D0F] mb-1"
+                  className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                 >
                   Password
                 </label>
                 <div className="relative">
-                  <FaLock className="absolute left-3 top-3 text-[#319CB5]" />
+                  <FaLock className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                   <input
                     type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-10 py-2 bg-[#CCF5FE] border border-[#319CB5] rounded-lg text-[#03181F] text-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out"
+                    className="block w-full pl-10 pr-10 py-2 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
                     placeholder="••••••••"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2 text-[#319CB5] hover:text-[#03181F] focus:outline-none transition duration-300 ease-in-out"
+                    className="absolute right-3 top-2 text-[#319CB5] dark:text-gray-500 hover:text-[#03181F] focus:outline-none transition duration-300 ease-in-out"
                   >
                     {showPassword ? (
                       <FaEyeSlash className="h-5 w-5" />
@@ -334,28 +331,28 @@ export default function Signup() {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-[#040D0F] mb-1"
+                  className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
                 >
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <FaLock className="absolute left-3 top-3 text-[#319CB5]" />
+                  <FaLock className="absolute left-3 top-3 text-[#319CB5] dark:text-gray-500" />
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     id="confirmPassword"
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-10 py-2 bg-[#CCF5FE] border rounded-lg text-[#03181F] text-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] focus:border-transparent transition duration-300 ease-in-out
-                      ${!passwordsMatch ? "border-red-500" : "border-[#319CB5]"}`}
+                    className={`block w-full pl-10 pr-10 py-2 bg-[#CCF5FE] dark:bg-gray-700 border rounded-lg text-[#03181F] dark:text-gray-200 text-sm
+                      focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out
+                      ${!passwordsMatch ? "border-red-500" : "border-[#319CB5] dark:border-gray-600"}`}
                     placeholder="••••••••"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-2 text-[#319CB5] hover:text-[#03181F] focus:outline-none transition duration-300 ease-in-out"
+                    className="absolute right-3 top-2 text-[#319CB5] dark:text-gray-500 hover:text-[#03181F] focus:outline-none transition duration-300 ease-in-out"
                   >
                     {showConfirmPassword ? (
                       <FaEyeSlash className="h-5 w-5" />
@@ -380,10 +377,9 @@ export default function Signup() {
           >
             <button
               type="submit"
-              className="w-full md:w-1/2 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] hover:bg-[#03181F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] transition duration-300 ease-in-out"
+              className="w-full md:w-1/2 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#319CB5] hover:bg-[#03181F] dark:bg-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 transition duration-300 ease-in-out"
             >
-              {isLoading ? <LoaderSimple/> : "Create account"
-              }
+              {isLoading ? <LoaderSimple /> : "Create account"}
             </button>
           </motion.div>
         </form>
@@ -393,11 +389,11 @@ export default function Signup() {
           transition={{ delay: 0.6, duration: 0.5 }}
           className="mt-6 text-center"
         >
-          <p className="text-sm text-[#040D0F]">
+          <p className="text-sm text-[#040D0F] dark:text-gray-300">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium text-[#319CB5] hover:text-[#03181F] transition duration-300 ease-in-out"
+              className="font-medium text-[#319CB5] dark:text-gray-500 hover:text-[#03181F] transition duration-300 ease-in-out"
             >
               Log in here
             </Link>

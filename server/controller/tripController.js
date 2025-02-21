@@ -8,11 +8,57 @@ const logger = getLogger('TripController');
 
 const createTrip = asyncHandler(async (req, res) => {
     try {
-        const { destinationId, startingPointId, startDate, endDate, budget, description, interests, travelStyle, groupSize, isGroupTrip,isPrivate, whatsappLink, telegramLink, discordLink } = req.body;
+        const { destinationId,destination,startingPointId,title, startDate, endDate, budget, description, interests, travelStyle, groupSize, isGroupTrip,isPrivate, whatsappLink, telegramLink, discordLink, isForced } = req.body;
         logger.info('Creating new trip', { userId: req.user._id, destinationId });
 
+ 
+        if(startDate>endDate){
+            logger.warn('Start date is greater than end date', { userId: req.user._id, destinationId });
+            res.status(400).send(new ApiResponse(400,null,"Start date cannot be greater than end date"));
+        }
+        const existingTrip = await Trip.findOne({ destinationId, startDate, endDate, creatorId: req.user._id });
+        if (existingTrip) {
+            logger.warn('Trip already exists', { userId: req.user._id, destinationId });
+            return res.status(400).send(new ApiResponse(400,{
+                tripFromSameUserExist:true,
+                trip:existingTrip
+            },"Trip with same destination and dates already exists"));
+        }        
+        
+        if(!isForced){
+            // same trip from different users
+            const existingTripFromOtherUser = await Trip.find({ destinationId, startDate, endDate });
+            if (existingTripFromOtherUser) {
+                const data = existingTripFromOtherUser.filter(trip=>trip.participants.length<groupSize).map((trip)=>{
+                    return {
+                        slug:trip.slug,
+                        title:trip.title,
+                        destination:trip.destination,
+                        startDate:trip.startDate,
+                        endDate:trip.endDate,
+                        creatorId:trip.creatorId
+                    }
+                });
+                if(data.length > 0){
+                    
+                return res.status(400).send(new ApiResponse(400,{
+                    tripFromSameUserExist:false,
+                    tripFromDifferentUserExits:true,
+                    trip:existingTripFromOtherUser[0]
+                },"You can join this trip instead of creating a new one"));
+                }
+            }  
+        }
+            
+        const slug = title.toLowerCase().split(' ').join('-');
+        // add random string to slug to make it unique
+        const slugWithUid = `${slug}-${Math.random().toString(36).substring(2, 7)}`;
+
         const trip = await Trip.create({
+            slug:slugWithUid,
+            title,
             destinationId,
+            destination,
             startingPointId,
             startDate,
             endDate,
@@ -31,10 +77,10 @@ const createTrip = asyncHandler(async (req, res) => {
         });
 
         logger.info('Trip created successfully', { tripId: trip._id, userId: req.user._id });
-        res.status(201).send(new ApiResponse(201, trip, "Trip created successfully"));
+        return res.status(201).send(new ApiResponse(201, trip, "Trip created successfully"));
     } catch (error) {
         logger.error('Error creating trip', { userId: req.user._id, error: error.message });
-        throw new ApiError(500, error);
+        res.status(500).send(new ApiResponse(500,null,"Internal server error"))
     }
 });
 

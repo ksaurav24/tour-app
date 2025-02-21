@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const tripSchema = new Schema(
   {
+    slug: { type: String, required: true, unique: true },
     creatorId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
     destination: { type: String, required: true },
     startingPoint: { type: String },
@@ -10,11 +11,12 @@ const tripSchema = new Schema(
     startingPointId: { type: String },
     longitude: { type: Number },
     latitude: { type: Number },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    startDate: { type: String, required: true },
+    endDate: { type: String, required: true },
     budget: { type: String },
+    title:{type:String},
     description: { type: String },
-    interests: { type: [String] },
+    interests: { type: [String],default:[] },
     travelStyle: { type: String },
     participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     groupSize: { type: Number },
@@ -24,9 +26,9 @@ const tripSchema = new Schema(
       default:false
     },
     joinRequests:[{ type: Schema.Types.ObjectId, ref: 'User' }],
-    whatsappLink: { type: String },
-    telegramLink: { type: String },
-    discordLink: { type: String },
+    whatsappLink: { type: String, default:"" },
+    telegramLink: { type: String, default:"" },
+    discordLink: { type: String , default:""},
     
   },
   {
