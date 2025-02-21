@@ -133,7 +133,7 @@ const Profile: React.FC = () => {
       loadProfile();
     }
 
-  }, [router, fetchProfile, hasFetched]);
+  }, [router, fetchProfile, hasFetched, user]);
 
   useEffect(() => {
     if (user && hasFetched) {
