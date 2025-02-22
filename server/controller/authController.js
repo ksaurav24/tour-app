@@ -123,7 +123,7 @@ const checkUsername = asyncHandler(async (req, res) => {
             isAvailable:true
         }, "Username is available"));
     } catch (error) {
-        logger.error('Error checking username', { userName: req.body.userName, error: error.message });
+        logger.error('Error checking username', { username: req.body.username, error: error.message });
         res.status(500).send(new ApiResponse(500, null, "Internal server error"));
     }
 });

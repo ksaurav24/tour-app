@@ -1,4 +1,4 @@
-export default async function Page({
+export default async function MyTripSingle({
     params,
   }: {
     params: Promise<{ slug: string }>

@@ -5,26 +5,7 @@ import { AnimatePresence, motion, useAnimation } from "framer-motion";
 import { toast } from "react-toastify";
 import { api } from "@/config/ApiConfig";
 import Link from "next/link";
-
-interface TripData {
-    slug:string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  destination: string;
-  startingPoint: string;
-  budget: string;
-  interest: string;
-  isPrivate: boolean;
-  isGroupTrip: boolean;
-  isForced: boolean;
-  groupSize: number;
-  whatsappLink: string;
-  telegramLink: string;
-  discordLink: string;
-  _id?: string;
-}
+import { TripData } from "@/types/TripsTypes";
 
 export default function NewTripPage() {
   const [trip, setTrip] = useState<TripData>({

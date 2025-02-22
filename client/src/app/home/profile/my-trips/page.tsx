@@ -1,5 +1,6 @@
+
 export default function MyTrips() {
-  return (
+    return (
     <div>
     </div>
   );

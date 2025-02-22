@@ -9,7 +9,8 @@
     "dev": "echo \"Starting the tour-app\" && concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && nodemon server.js",
     "client": "cd client && npm run dev",
-    "setup-env": "node server/scripts/setup-env.js"
+    "setup-env": "node server/scripts/setup-env.js",
+    "swagger": "node server/scripts/swagger.js"
   },
   "author": "",
   "license": "ISC",

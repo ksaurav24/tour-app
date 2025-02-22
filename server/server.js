@@ -4,6 +4,8 @@ const port = process.env.PORT || 8000;
 const connectDB = require('./config/dbConfig');
 const passport = require("passport");
 const{ initializingPassport} = require('./config/passportConfig')
+const swaggerDocs = require('./config/swagger');
+swaggerDocs(app, port);
 
 initializingPassport(passport)
 
