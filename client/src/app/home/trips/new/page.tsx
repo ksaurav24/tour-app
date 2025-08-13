@@ -6,8 +6,10 @@ import { toast } from "react-toastify";
 import { api } from "@/config/ApiConfig";
 import Link from "next/link";
 import { TripData } from "@/types/TripsTypes";
+import LoaderSimple from "@/components/loaderSimple";
 
 export default function NewTripPage() {
+  const [isLoading, setIsLoading] = useState(false)
   const [trip, setTrip] = useState<TripData>({
     slug:'',
     title: "",
@@ -57,6 +59,7 @@ export default function NewTripPage() {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (trip.isGroupTrip && trip.groupSize < 2) {
       toast.warn("Group size must be at least 2");
       return;
@@ -65,7 +68,7 @@ export default function NewTripPage() {
       toast.warn("End date must be after start date");
       return;
     }
-    e.preventDefault();
+    setIsLoading(true)
     api
       .post("/trip/create", trip,{
         headers:{
@@ -89,6 +92,8 @@ export default function NewTripPage() {
             tripsData: err?.response?.data?.data?.trip,
           });
         }
+      }).finally(()=>{
+        setIsLoading(false)
       });
   };
   const handleForceSubmit = () => {
@@ -350,12 +355,12 @@ export default function NewTripPage() {
         </motion.div>
         <motion.button
           type="submit"
-          className="w-full bg-[#319CB5] text-white py-3 px-6 rounded-md hover:bg-[#03181F] transition duration-300 text-lg font-semibold"
+          className="w-full bg-[#319CB5] text-white flex justify-center py-3 px-6 rounded-md hover:bg-[#03181F] transition duration-300 text-lg font-semibold"
           whileHover={{ scale: 1.02, backgroundColor: "#03181F" }}
           whileTap={{ scale: 0.98 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          Next
+         {isLoading ? <LoaderSimple/> : "Next"}
         </motion.button>
       </form>
       <AnimatePresence>

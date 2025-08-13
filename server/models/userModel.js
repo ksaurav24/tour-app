@@ -18,12 +18,16 @@ const userSchema = new Schema(
         bio: { type: String },
         interests: { type: [String] }, // Array of strings
         travelStyle: { type: String },
-        pastTrips: [{ type: Schema.Types.ObjectId, ref: 'Trip' 
+        createdTrips: [{ type: Schema.Types.ObjectId, ref: 'Trip' 
             ,default: []
         }], // Reference to Trip model
         reviews: [{ type: Schema.Types.ObjectId, ref: 'Review',
             default: []
          }], // Reference to Review model
+        joinedTrips:[{ type: Schema.Types.ObjectId, ref: 'Trip' 
+            ,default: []
+        }], // Reference to Trip model
+        
         verificationToken: { type: String },
         verificationTokenExpiry:{
             type:Date

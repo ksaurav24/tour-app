@@ -22,3 +22,9 @@ export interface TripData {
   _id?: string;
 }
 
+export interface trips {
+  joinedTrips:TripData[];
+  createdTrips:TripData[];
+  joinRequests:TripData[];
+
+}

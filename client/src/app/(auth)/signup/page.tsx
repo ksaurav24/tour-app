@@ -295,7 +295,7 @@ export default function Signup() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
               className="space-y-4"
-            >... <div>
+            > <div>
                 <label
                   htmlFor="password"
                   className="block text-sm font-medium text-[#040D0F] dark:text-gray-300 mb-1"
@@ -312,7 +312,7 @@ export default function Signup() {
                     onChange={handleInputChange}
                     className="block w-full pl-10 pr-10 py-2 bg-[#CCF5FE] dark:bg-gray-700 border border-[#319CB5] dark:border-gray-600 rounded-lg text-[#03181F] dark:text-gray-200 text-sm
                       focus:outline-none focus:ring-2 focus:ring-[#319CB5] dark:focus:ring-gray-500 focus:border-transparent transition duration-300 ease-in-out"
-                    placeholder="••••••••"
+                    placeholder="^_^  ^_^"
                     required
                   />
                   <button

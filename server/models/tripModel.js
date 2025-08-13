@@ -29,6 +29,7 @@ const tripSchema = new Schema(
     whatsappLink: { type: String, default:"" },
     telegramLink: { type: String, default:"" },
     discordLink: { type: String , default:""},
+    isCanceled:{type:Boolean, default:false}
     
   },
   {

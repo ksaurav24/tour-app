@@ -5,8 +5,8 @@ const { joinTrip,
     getTrip,
     getTrips,
     updateTrip,
-    deleteTrip, 
-    acceptJoinRequest} = require('../controller/tripController');
+    acceptJoinRequest,
+    cancelTrip} = require('../controller/tripController');
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.get('/',isLoggedIn,isVerified,getTrips)
 
 router.put('/:id',isLoggedIn,isVerified,updateTrip)
 
-router.delete('/:id',isLoggedIn,isVerified,deleteTrip)
+router.delete('/:id',isLoggedIn,isVerified,cancelTrip)
 
 router.post('/join/:id',isLoggedIn,isVerified,joinTrip)
 

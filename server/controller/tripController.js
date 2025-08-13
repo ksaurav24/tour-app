@@ -1,5 +1,5 @@
 const Trip = require("../models/tripModel");
-const ApiError = require("../utils/ApiError");
+const User = require("../models/userModel");
 const ApiResponse = require("../utils/ApiResponse");
 const asyncHandler = require("../utils/asyncHandler");
 const getLogger = require("../utils/logger");
@@ -14,7 +14,7 @@ const createTrip = asyncHandler(async (req, res) => {
  
         if(startDate>endDate){
             logger.warn('Start date is greater than end date', { userId: req.user._id, destinationId });
-            res.status(400).send(new ApiResponse(400,null,"Start date cannot be greater than end date"));
+            return res.status(400).send(new ApiResponse(400,null,"Start date cannot be greater than end date"));
         }
         const existingTrip = await Trip.findOne({ destinationId, startDate, endDate, creatorId: req.user._id });
         if (existingTrip) {
@@ -75,6 +75,9 @@ const createTrip = asyncHandler(async (req, res) => {
             telegramLink,
             discordLink
         });
+        const user = await User.findById(req.user._id)
+        user.createdTrips.push(trip._id)
+        await user.save()
 
         logger.info('Trip created successfully', { tripId: trip._id, userId: req.user._id });
         return res.status(201).send(new ApiResponse(201, trip, "Trip created successfully"));
@@ -90,13 +93,13 @@ const getTrip = asyncHandler(async (req, res) => {
         const data = await Trip.findById(req.params.id).populate("creatorId").populate("participants");
         if (!data) {
             logger.warn('Trip not found', { tripId: req.params.id });
-            throw new ApiError(404, "Trip not found");
+            return res.status(404).send(new ApiResponse(404, null, "Trip not found"))
         }
         logger.info('Trip retrieved successfully', { tripId: req.params.id });
-        res.status(200).send(new ApiResponse(200, data, "Trip retrieved successfully"));
+        return res.status(200).send(new ApiResponse(200, data, "Trip retrieved successfully"));
     } catch (error) {
         logger.error('Error fetching trip', { tripId: req.params.id, error: error.message });
-        throw new ApiError(500, error);
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
     }
 });
 
@@ -105,10 +108,11 @@ const getTrips = asyncHandler(async (req, res) => {
         logger.info('Fetching all trips');
         const trips = await Trip.find().populate("creatorId").populate("participants");
         logger.info('Trips retrieved successfully', { count: trips.length });
-        res.status(200).send(new ApiResponse(200, trips, "Trips retrieved successfully"));
+        return res.status(200).send(new ApiResponse(200, trips, "Trips retrieved successfully"));
     } catch (error) {
         logger.error('Error fetching trips', { error: error.message });
-        throw new ApiError(500, error);
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
+
     }
 });
 
@@ -123,37 +127,40 @@ const updateTrip = asyncHandler(async (req, res) => {
         });
         if (!trip) {
             logger.warn('Trip not found for update', { tripId: req.params.id, userId: req.user._id });
-            throw new ApiError(404, "Trip not found");
+            return res.status(404).send(new ApiResponse(404, null, "Trip not found for update"))
         }
         
         Object.assign(trip, { destinationId, startingPointId, startDate, endDate, budget, description, interests, travelStyle, groupSize, isGroupTrip, isPrivate, whatsappLink, telegramLink, discordLink });
         await trip.save();
         
         logger.info('Trip updated successfully', { tripId: req.params.id });
-        res.status(200).send(new ApiResponse(200, trip, "Trip updated successfully"));
+        return res.status(200).send(new ApiResponse(200, trip, "Trip updated successfully"));
     } catch (error) {
         logger.error('Error updating trip', { tripId: req.params.id, userId: req.user._id, error: error.message });
-        throw new ApiError(500, error);
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
+
     }
 });
 
-const deleteTrip = asyncHandler(async (req, res) => {
+const cancelTrip = asyncHandler(async (req, res) => {
     try {
-        logger.info('Deleting trip', { tripId: req.params.id, userId: req.user._id });
+        logger.info('Canceling trip', { tripId: req.params.id, userId: req.user._id });
         const trip = await Trip.findOne({
             _id: req.params.id,
             creatorId: req.user._id
         });
         if (!trip) {
-            logger.warn('Trip not found for deletion', { tripId: req.params.id, userId: req.user._id });
-            throw new ApiError(404, "Trip not found");
+            logger.warn('Trip not found for Cancelation', { tripId: req.params.id, userId: req.user._id });
+            return res.status(404).send(new ApiResponse(404, null, "Trip not found for Cancelation"))
         }
-        await trip.remove();
+        trip.isCancel = true;
+        await trip.save()
         logger.info('Trip deleted successfully', { tripId: req.params.id });
-        res.status(200).send(new ApiResponse(200, null, "Trip deleted successfully"));
+        return res.status(200).send(new ApiResponse(200, null, "Trip cancelled successfully"));
     } catch (error) {
-        logger.error('Error deleting trip', { tripId: req.params.id, userId: req.user._id, error: error.message });
-        throw new ApiError(500, error);
+        logger.error('Error Canceling trip', { tripId: req.params.id, userId: req.user._id, error: error.message });
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
+
     }
 });
 
@@ -161,29 +168,34 @@ const joinTrip = asyncHandler(async (req, res) => {
     try {
         logger.info('User attempting to join trip', { tripId: req.params.id, userId: req.user._id });
         const trip = await Trip.findById(req.params.id);
+        const user = await User.findById(req.user_id)
         if (!trip) {
             logger.warn('Trip not found for joining', { tripId: req.params.id });
-            throw new ApiError(404, "Trip not found");
+            return res.status(404).send(new ApiResponse(404, null, "Trip not found for joining"))
         }
         if (trip.participants.includes(req.user._id)) {
             logger.warn('User already a participant', { tripId: req.params.id, userId: req.user._id });
-            throw new ApiError(400, "You are already a participant of this trip");
+            return res.status(400).send(new ApiResponse(400,null, "You are already a participant of this trip"))
         }
         if(trip.isPrivate){
             trip.joinRequests.push(req.user._id);
+            user.joinRequests.push(trip._id);
             await trip.save();
+            await user.save();
             logger.info('Join request sent successfully', { tripId: req.params.id, userId: req.user._id });
             return res.status(200).send(new ApiResponse(200, trip, "Join request sent successfully"));
         }
         else{
             trip.participants.push(req.user._id);
+            user.joinedTrips.push(trip._id);
+            await user.save();
             await trip.save();
             logger.info('User joined trip successfully', { tripId: req.params.id, userId: req.user._id });
-            res.status(200).send(new ApiResponse(200, trip, "You have joined the trip successfully"));
+            return res.status(200).send(new ApiResponse(200, trip, "You have joined the trip successfully"));
         }
     } catch (error) {
         logger.error('Error joining trip', { tripId: req.params.id, userId: req.user._id, error: error.message });
-        throw new ApiError(500, error);
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
     }
 });
 
@@ -219,10 +231,10 @@ const searchTrip = asyncHandler(async (req, res) => {
         }
 
         logger.info('Trips found successfully', { count: trips.length });
-        res.status(200).send(new ApiResponse(200, trips, "Trips retrieved successfully"));
+        return res.status(200).send(new ApiResponse(200, trips, "Trips retrieved successfully"));
     } catch (error) {
         logger.error('Error searching for trips', { error: error.message, query: req.query });
-        throw new ApiError(500, "An error occurred while searching for trips");
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
     }
 });
 
@@ -234,23 +246,31 @@ const acceptJoinRequest = asyncHandler(async(req,res)=>{
             _id:tripId,
             creatorId:req.user_id
         });
+        const user = await User.findById(RequesterId)
+
         if (!trip) {
             logger.warn('Trip not found for joining', { tripId: req.params.id });
-            throw new ApiError(404, "Trip not found");
+            return res.status(404).send(new ApiResponse(404, null, "Trip not found"))
         }
         if(!trip.joinRequests.includes(RequesterId)){
             logger.warn('User not found in join requests', { tripId: req.params.id, userId: req.user._id });
-            throw new ApiError(404, "User not found in join requests");
+            return res.status(404).send(new ApiResponse(404, null, "User not found in request list"))
+
         }
         trip.participants.push(RequesterId);
+        user.joinedTrips.push(trip._id)
         trip.joinRequests = trip.joinRequests.filter(id=>id!==RequesterId);
+        user.joinRequests = user.joinRequests.filter(id=>id!==trip._id);
+        await user.save();
         await trip.save();
+
         logger.info('User joined trip successfully', { tripId: req.params.id, userId: req.user._id });
-        res.status(200).send(new ApiResponse(200, trip, "You have joined the trip successfully"));
+        return res.status(200).send(new ApiResponse(200, trip, "You have joined the trip successfully"));
         
         
     } catch (error) {
         logger.error('Error searching for trips', { error: error.message, user: req.user_id, trip:req.params.id });
+        res.status(500).send(new ApiResponse(500, null, "Internal server error"))
     }
 })
 
@@ -261,6 +281,6 @@ module.exports = {
     getTrip,
     getTrips,
     updateTrip,
-    deleteTrip,
+    cancelTrip,
     acceptJoinRequest
 };
